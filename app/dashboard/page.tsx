@@ -28,8 +28,8 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-400">Panel Principal</h1>
+          <div>  
+          <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-400">Panel Principal</h1>
             <p className="text-gray-600 dark:text-gray-300">Bienvenido, Dr. Juan Pérez</p>
           </div>
           <div className="flex items-center gap-2">
@@ -240,12 +240,12 @@ export default function Dashboard() {
                   </div>
                 </Link>  
 
-                <Link href="/nota-medica">
+                <Link href="/recitario">
                   <div className="p-4 border border-gray-100 dark:border-gray-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-center">
                     <div className="h-12 w-12 mx-auto bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center mb-2">
                       <FileText className="h-6 w-6 text-green-600 dark:text-green-300" />
                     </div>
-                    <h4 className="font-medium">Nota Médica</h4>
+                    <h4 className="font-medium">Recitario</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Consultas y recetas</p>
                   </div>
                 </Link>
