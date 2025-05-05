@@ -1,14 +1,54 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LockKeyhole, Mail, UserPlus, LogIn } from "lucide-react"
-import Link from "next/link"
-import { cn } from "@/lib/utils"
+"use client";
+
+import { useState } from "react";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LockKeyhole, Mail, UserPlus, LogIn } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError("");
+
+    // Validación de campos
+    if (!email || !password) {
+      setError("Por favor, completa todos los campos.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Realizar la solicitud de inicio de sesión al microservicio
+      const response = await axios.post("http://localhost:402/medicos/login", {
+        correoElectronico: email,
+        contrasena: password,
+      });
+
+      console.log("Login exitoso:", response.data);
+      // Redirigir al dashboard o manejar el inicio de sesión exitoso
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("Error al iniciar sesión:", err);
+      if (axios.isAxiosError(err) && err.response?.data?.msg) {
+        setError(err.response.data.msg);
+      } else {
+        setError("Error al iniciar sesión. Inténtalo nuevamente.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-slate-900 flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md">
@@ -16,9 +56,6 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <div className="relative w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center shadow-[8px_8px_16px_rgba(0,0,0,0.10),-8px_-8px_16px_rgba(255,255,255,0.9)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.05)]">
               <LockKeyhole className="h-8 w-8 text-white" />
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow">
-                <span className="text-white text-xs font-bold">+</span>
-              </div>
             </div>
           </div>
           <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-400">ConsultaMed</h1>
@@ -76,6 +113,8 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="doctor@consultamed.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className={cn(
                       "bg-blue-50 dark:bg-slate-800 border-none",
                       "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
@@ -92,6 +131,9 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type="password"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className={cn(
                       "bg-blue-50 dark:bg-slate-800 border-none",
                       "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
@@ -100,133 +142,29 @@ export default function LoginPage() {
                     )}
                   />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" className="rounded-md data-[state=checked]:bg-blue-500"/>
-                  <Label htmlFor="remember" className="font-normal text-gray-600 dark:text-gray-400">
-                    Recordar sesión
-                  </Label>
-                </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
               </CardContent>
               <CardFooter className="flex flex-col space-y-4">
-                <Link href="/dashboard" className="w-full">
-                  <Button className={cn(
+                <Button
+                  onClick={handleLogin}
+                  disabled={loading}
+                  className={cn(
                     "w-full bg-blue-500 hover:bg-blue-600",
                     "shadow-[4px_4px_8px_rgba(0,0,0,0.10),-4px_-4px_8px_rgba(255,255,255,0.9)]",
                     "dark:shadow-[4px_4px_8px_rgba(0,0,0,0.3),-4px_-4px_8px_rgba(255,255,255,0.05)]",
                     "transform active:scale-95 transition-all"
-                  )}>
-                    Iniciar Sesión
-                  </Button>
-                </Link>
+                  )}
+                >
+                  {loading ? "Cargando..." : "Iniciar Sesión"}
+                </Button>
                 <a href="#" className="text-sm text-blue-600 dark:text-blue-400 hover:underline text-center">
                   ¿Olvidaste tu contraseña?
                 </a>
               </CardFooter>
             </Card>
           </TabsContent>
-
-          <TabsContent value="register">
-            <Card className={cn(
-              "border-none bg-blue-50 dark:bg-slate-800",
-              "shadow-[8px_8px_16px_rgba(0,0,0,0.10),-8px_-8px_16px_rgba(255,255,255,0.9)]",
-              "dark:shadow-[8px_8px_16px_rgba(0,0,0,0.3),-8px_-8px_16px_rgba(255,255,255,0.05)]",
-              "rounded-2xl"
-            )}>
-              <CardHeader>
-                <CardTitle className="text-blue-600 dark:text-blue-400">Crear una cuenta</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Regístrate para comenzar a usar el sistema
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name" className="text-blue-600 dark:text-blue-400">Nombre</Label>
-                    <Input
-                      id="first-name"
-                      className={cn(
-                        "bg-blue-50 dark:bg-slate-800 border-none",
-                        "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
-                        "dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)]"
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name" className="text-blue-600 dark:text-blue-400">Apellido</Label>
-                    <Input
-                      id="last-name"
-                      className={cn(
-                        "bg-blue-50 dark:bg-slate-800 border-none",
-                        "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
-                        "dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)]"
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-email" className="text-blue-600 dark:text-blue-400">Correo Electrónico</Label>
-                  <Input
-                    id="reg-email"
-                    type="email"
-                    className={cn(
-                      "bg-blue-50 dark:bg-slate-800 border-none",
-                      "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
-                      "dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)]"
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reg-password" className="text-blue-600 dark:text-blue-400">Contraseña</Label>
-                  <Input
-                    id="reg-password"
-                    type="password"
-                    className={cn(
-                      "bg-blue-50 dark:bg-slate-800 border-none",
-                      "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
-                      "dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)]"
-                    )}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password" className="text-blue-600 dark:text-blue-400">Confirmar Contraseña</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    className={cn(
-                      "bg-blue-50 dark:bg-slate-800 border-none",
-                      "shadow-[inset_4px_4px_8px_rgba(0,0,0,0.08),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]",
-                      "dark:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.3),inset_-4px_-4px_8px_rgba(255,255,255,0.05)]"
-                    )}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" className="rounded-md data-[state=checked]:bg-blue-500"/>
-                  <Label htmlFor="terms" className="font-normal text-gray-600 dark:text-gray-400">
-                    Acepto los{" "}
-                    <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
-                      términos y condiciones
-                    </a>
-                  </Label>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button className={cn(
-                  "w-full bg-blue-500 hover:bg-blue-600",
-                  "shadow-[4px_4px_8px_rgba(0,0,0,0.10),-4px_-4px_8px_rgba(255,255,255,0.9)]",
-                  "dark:shadow-[4px_4px_8px_rgba(0,0,0,0.3),-4px_-4px_8px_rgba(255,255,255,0.05)]",
-                  "transform active:scale-95 transition-all"
-                )}>
-                  Crear Cuenta
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
         </Tabs>
-
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">© 2025 ConsultaMed - Todos los derechos reservados</p>
-        </div>
       </div>
     </div>
-  )
+  );
 }

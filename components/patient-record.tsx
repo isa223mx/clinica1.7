@@ -10,19 +10,66 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UserPlus, Save } from "lucide-react"
 
 export default function PatientRecord() {
-  const [step, setStep] = useState(1)
+  // const [step, setStep] = useState(1)
+  
 
-  const nextStep = () => {
-    setStep(step + 1)
-  }
+  const [formData, setFormData] = useState({
+    nombrePaciente: "",
+    Fecha_nacimiento: "",
+    gender: "",
+    occupation: "",
+    phone: "",
+    email: "",
+    address: "",
+    emergencyContact: "",
+    TipoSangre: "",
+  });
 
-  const prevStep = () => {
-    setStep(step - 1)
-  }
+  // const nextStep = () => {
+  //   setStep(step + 1)
+  // }
+
+  // const prevStep = () => {
+  //   setStep(step - 1)
+  // }
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/historiales/addPaciente", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      console.log(JSON.stringify(formData))
+  
+      if (response.ok) {
+        alert("¡Historia clínica guardada con éxito!"); 
+      } else {
+        alert("Error al guardar.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("¡Error inesperado!");
+    }
+  };
 
   return (
+    
     <Card className="border-blue-100 dark:border-blue-900">
       <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
+            <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+          </div>
+          <div>
+            <CardTitle>Datos del Paciente</CardTitle>
+            <CardDescription>Registre los datos del nuevo paciente</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      {/* <CardHeader>
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
             <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-300" />
@@ -77,22 +124,32 @@ export default function PatientRecord() {
             </div>
           </div>
         </div>
-      </CardHeader>
+      </CardHeader> */}
       <CardContent className="space-y-6">
-        {step === 1 && (
+        {/* {step === 1 && ( */}
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre Completo</Label>
-                <Input id="name" placeholder="Nombre completo" />
+                <Input
+                  id="name"
+                  placeholder="Nombre completo"
+                  value={formData.nombrePaciente}
+                  onChange={(e) => setFormData({ ...formData, nombrePaciente: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dob">Fecha de Nacimiento</Label>
-                <Input id="dob" type="date" />
+                <Input
+                  id="dob"
+                  type="date"
+                  value={formData.Fecha_nacimiento}
+                  onChange={(e) => setFormData({ ...formData, Fecha_nacimiento: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="gender">Género</Label>
-                <Select>
+                <Select onValueChange={(value) => setFormData({ ...formData, gender: value })}>
                   <SelectTrigger id="gender">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
@@ -103,61 +160,10 @@ export default function PatientRecord() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="occupation">Ocupación</Label>
-                <Input id="occupation" placeholder="Ocupación" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input id="phone" placeholder="Teléfono" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
-                <Input id="email" type="email" placeholder="Correo electrónico" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">Dirección</Label>
-              <Textarea id="address" placeholder="Dirección completa" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="emergency-contact">Contacto de Emergencia</Label>
-              <Input id="emergency-contact" placeholder="Nombre y teléfono" />
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="allergies">Alergias</Label>
-              <Textarea id="allergies" placeholder="Alergias conocidas" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="medical-history">Antecedentes Médicos</Label>
-              <Textarea id="medical-history" placeholder="Historial médico relevante" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="family-history">Antecedentes Familiares</Label>
-              <Textarea id="family-history" placeholder="Historial médico familiar" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="medications">Medicamentos Actuales</Label>
-              <Textarea id="medications" placeholder="Medicamentos que toma actualmente" />
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-6">
-            <div className="space-y-2">
               <Label htmlFor="blood-type">Grupo Sanguíneo</Label>
-              <Select>
+              <Select onValueChange={(value) => setFormData({ ...formData, TipoSangre: value })}>
                 <SelectTrigger id="blood-type">
                   <SelectValue placeholder="Seleccionar" />
                 </SelectTrigger>
@@ -174,51 +180,201 @@ export default function PatientRecord() {
               </Select>
             </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="occupation">Ocupación</Label>
+
+                <Input
+                  id="occupation"
+                  placeholder="Ocupación"
+                  value={formData.occupation}
+                  onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Teléfono</Label>
+
+                <Input
+                  id="phone"
+                  placeholder="Teléfono"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
+
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Correo Electrónico</Label>
+
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Correo electrónico"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Dirección</Label>
+
+              <Textarea
+                  id="address"
+                  placeholder="Dirección completa"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="emergency-contact">Contacto de Emergencia</Label>
+
+              <Input
+                  id="emergencyContact"
+                  placeholder="Nombre y teléfono"
+                  value={formData.emergencyContact}
+                  onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
+              />
+
+            </div>
+          </div>
+        {/* )} */}
+
+        {/* {step === 2 && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="allergies">Alergias</Label>
+
+              <Textarea
+                  id="allergies"
+                  placeholder="Alergias conocidas"
+                  value={formData.allergies}
+                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+              />
+
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="medical-history">Antecedentes Médicos</Label>
+
+              <Textarea
+                  id="medicalHistory"
+                  placeholder="Alergias conocidas"
+                  value={formData.medicalHistory}
+                  onChange={(e) => setFormData({ ...formData, medicalHistory: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="family-history">Antecedentes Familiares</Label>
+
+              <Textarea
+                  id="familyHistory"
+                  placeholder="Historial médico familiar"
+                  value={formData.familyHistory}
+                  onChange={(e) => setFormData({ ...formData, familyHistory: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="medications">Medicamentos Actuales</Label>
+
+              <Textarea
+                  id="medications"
+                  placeholder="Medicamentos que toma actualmente"
+                  value={formData.medications}
+                  onChange={(e) => setFormData({ ...formData, medications: e.target.value })}
+              />
+            </div>
+          </div>
+        )} */}
+
+        {/* {step === 3 && (
+          <div className="space-y-6">
+            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="height">Estatura (cm)</Label>
-                <Input id="height" type="number" placeholder="170" />
+                <Input
+                  id="height"
+                  type="number"
+                  placeholder="170"
+                  value={formData.height}
+                  onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+              />
+
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="weight">Peso (kg)</Label>
-                <Input id="weight" type="number" step="0.1" placeholder="70.0" />
+                
+                <Input
+                  id="weight"
+                  type="number"
+                  placeholder="70.0"
+                  value={formData.weight}
+                  onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+              />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bmi">IMC</Label>
-                <Input id="bmi" type="number" step="0.01" placeholder="24.22" disabled />
+              
+
+                <Input
+                  id="bmi"
+                  type="number"
+                  step={0.01}
+                  placeholder="70.0"
+                  value={formData.bmi}
+                  onChange={(e) => setFormData({ ...formData, bmi: e.target.value })}
+              />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="habits">Hábitos</Label>
-              <Textarea id="habits" placeholder="Tabaquismo, alcoholismo, ejercicio, etc." />
+              
+              <Textarea
+                  id="habits"
+                  placeholder="Tabaquismo, alcoholismo, ejercicio, etc."
+                  value={formData.habits}
+                  onChange={(e) => setFormData({ ...formData, habits: e.target.value })}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="observations">Observaciones Adicionales</Label>
-              <Textarea id="observations" placeholder="Cualquier otra información relevante" />
+         
+              <Textarea
+                  id="observations"
+                  placeholder="Cualquier otra información relevante"
+                  value={formData.observations}
+                  onChange={(e) => setFormData({ ...formData, observations: e.target.value })}
+              />
+
             </div>
           </div>
-        )}
+        )} */}
       </CardContent>
       <CardFooter className="flex justify-between">
-        {step > 1 ? (
+        {/* {step > 1 ? (
           <Button variant="outline" onClick={prevStep}>
             Anterior
           </Button>
         ) : (
           <div></div>
-        )}
+        )} */}
 
-        {step < 3 ? (
+        {/* {step < 3 ? (
           <Button onClick={nextStep}>Siguiente</Button>
-        ) : (
-          <Button className="flex items-center gap-2">
+        ) : ( */}
+          <Button className="flex items-center gap-2" onClick={handleSubmit}>
             <Save size={16} />
-            <span>Guardar Historia Clínica</span>
+            <span>Registrar Paciente</span>
           </Button>
-        )}
+        {/* )} */}
       </CardFooter>
-    </Card>
+    </Card> 
   )
 }
